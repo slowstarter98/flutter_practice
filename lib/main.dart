@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import './thema/main_thema.dart' as thema;
 
 void main() {
   runApp(
+    // provider 사용
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (c)=>Store1()),
@@ -11,18 +12,13 @@ void main() {
         ],
         child: MaterialApp(
           home: MyApp(),
-          theme: ThemeData(
-            textTheme: TextTheme(
-              // body에 사용되는 텍스트의 스타일
-              bodyText2: TextStyle(color: Colors.red)
-            )
-
-          ),
+          theme: thema.mainThema,
         ),
       )
   );
 }
 
+// 마이앱 ------------------------------------------------------------------------
 class MyApp extends StatefulWidget {
   MyApp({Key? key}) : super(key: key);
 
@@ -31,21 +27,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var pageIndex = 0;
-  var name = '';
 
-  List<Widget> bodyWidget = [
-    Text('1'),
-    SecondPage(),
-    Text('3'),
-  ];
+  var pageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
 
     print(context.read<Store2>().store2);
     return Scaffold(
-
       appBar: AppBar(),
 
       body: Center(child: bodyWidget[pageIndex]),
@@ -54,6 +43,7 @@ class _MyAppState extends State<MyApp> {
 
         //바텀네비게이션바 아이콘 눌렀을때 실행
         onTap: (index){
+          context.read<Store1>().changeIndex(index);
           setState(() {
             pageIndex=index;
           });
@@ -66,44 +56,71 @@ class _MyAppState extends State<MyApp> {
         selectedItemColor: Colors.green,
 
         //아이콘 종류
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add),
-            label: 'add',
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-            label: 'home'
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.markunread),
-            label: 'massage'
-          )
-        ],
+        items: NavigatorItems,
       )
     );
   }
 }
+//------------------------------------------------------------------------------
 
+// 바텀 네비게이션 아이템
+List<BottomNavigationBarItem> NavigatorItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.add),
+      label: 'add',
+    ),
+    BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: 'home'
+    ),
+    BottomNavigationBarItem(
+        icon: Icon(Icons.markunread),
+        label: 'massage'
+    )
+];
+
+// body 페이지
+List<Widget> bodyWidget = [
+  FirstPage(),
+  SecondPage(),
+  ThirdPage(),
+];
+
+class FirstPage extends StatelessWidget {
+  const FirstPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.read<Store1>().pageIndexNum.toString());
+  }
+}
 
 class SecondPage extends StatelessWidget {
   const SecondPage({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Text(context.read<Store2>().store2);
   }
 }
 
+class ThirdPage extends StatelessWidget {
+  const ThirdPage({Key? key}) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.read<Store1>().pageIndexNum.toString());
+  }
+}
 
+// provider 저장소
 class Store1 extends ChangeNotifier{
   var pageIndexNum=0;
   changeIndex(index){
-    pageIndexNum=index;
+    pageIndexNum=index+1;
     notifyListeners();
   }
 }
+
 class Store2 extends ChangeNotifier{
   var store2='store2';
 }
